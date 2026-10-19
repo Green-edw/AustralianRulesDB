@@ -72,8 +72,13 @@ def format_date(date_str):
 
 def score_str(goals, behinds, total):
     try:
-        if pd.notna(goals) and pd.notna(behinds):
-            return f'{int(goals)}.{int(behinds)} ({int(total)})'
+        if pd.notna(goals) and pd.notna(total):
+            # Recalculate behinds from total and goals — more reliable than stored value
+            calc_behinds = int(round(total)) - int(goals) * 6
+            if calc_behinds < 0:
+                # Fall back to stored behinds if calculation is nonsensical
+                calc_behinds = int(behinds) if pd.notna(behinds) else 0
+            return f'{int(goals)}.{calc_behinds} ({int(total)})'
         elif pd.notna(total) and total > 0:
             return f'– ({int(total)})'
         return '–'
